@@ -26,8 +26,9 @@ While debugging just these tests it's convenient to use this:
 import os
 import logging
 import unittest
+import random
 from decimal import Decimal
-from service.models import Product, Category, db
+from service.models import Product, Category, db, DataValidationError
 from service import app
 from tests.factories import ProductFactory
 
@@ -104,3 +105,175 @@ class TestProductModel(unittest.TestCase):
     #
     # ADD YOUR TEST CASES HERE
     #
+    def test_read_product(self):
+        """It should read a product from the database with a given product id"""
+        # create a mock product and add to db
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        print(f'product created: {str(product)}')
+
+        # get the product we just added
+        fetched_product = Product.find(product.id)
+        self.assertEqual(fetched_product.id, product.id)
+        self.assertEqual(fetched_product.name, product.name)
+        self.assertEqual(fetched_product.description, product.description)
+        self.assertEqual(fetched_product.price, product.price)
+
+    def test_update_product(self):
+        """It should update changes to a product in the database"""
+        # create a mock product and add to db
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        print(f'product created: {product}; description: {product.description}')
+
+        # update the product data
+        new_description = "test description"
+        original_id = product.id
+        product.description = new_description
+        print(f'new product: {product}; description: {product.description}')
+        product.update()
+        self.assertEqual(original_id, product.id)
+        self.assertEqual(new_description, product.description)
+
+        # fetch all items (there should only be one)
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+
+        # assert the first item matches the updated product
+        self.assertEqual(products[0].id, original_id)
+        self.assertEqual(products[0].description, new_description)
+
+    def test_update_product_empty_id(self):
+        """it should raise an exception if attempting to update a product without providing an id"""
+        # create a mock product, remove its id
+        product = ProductFactory()
+        product.id = None
+
+        # try to update the product, it should raise a DataValidationError
+        self.assertRaises(DataValidationError, product.update)
+
+    def test_delete_product(self):
+        """It should remove an existing product by referenced id"""
+        # create a mock product and add to db
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        print(f'product created: {product}')
+
+        # get all products, there should only be 1
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+
+        # remove the product
+        product.delete()
+        products = Product.all()
+        self.assertEqual(len(products), 0)
+
+    def test_list_all_products(self):
+        """it should get all products in the database"""
+        # initial condition: no products in database
+        products = Product.all()
+        self.assertEqual(len(products), 0)
+
+        # create 5 products
+        for _ in range(5):
+            new_product = ProductFactory()
+            new_product.id = None
+            new_product.create()
+
+        # we should now have 5 products in the database
+        products = Product.all()
+        self.assertEqual(len(products), 5)
+
+    def test_get_product_by_name(self):
+        """it should get a product by the product's name"""
+        # create 5 products
+        for _ in range(5):
+            new_product = ProductFactory()
+            new_product.id = None
+            new_product.create()
+
+        # get all products (so we can reference them to get their names)
+        products = Product.all()
+        index = random.randint(0, 4)  # picking a random product to reference
+        product_name = products[index].name
+
+        # count how many products have name=product_name
+        count = len([product for product in products if product.name == product_name])
+
+        # get products by name
+        found_products = Product.find_by_name(product_name)
+        self.assertEqual(found_products.count(), count)
+        for prod in found_products:
+            self.assertEqual(prod.name, product_name)
+
+    def test_get_product_by_availability(self):
+        """it should filter products by availability"""
+        # create 10 products
+        for _ in range(10):
+            new_product = ProductFactory()
+            new_product.id = None
+            new_product.create()
+
+        # get all products
+        products = Product.all()
+        index = random.randint(0, 9)  # picking a random product to reference
+        availability = products[index].available
+
+        # count how many products have matching availability
+        count = len([product for product in products if product.available == availability])
+
+        # filter and assert
+        found_products = Product.find_by_availability(availability)
+        self.assertEqual(found_products.count(), count)
+        for prod in found_products:
+            self.assertEqual(prod.available, availability)
+
+    def test_get_by_product_category(self):
+        """it should filter products by category"""
+        # create 10 products
+        for _ in range(10):
+            new_product = ProductFactory()
+            new_product.id = None
+            new_product.create()
+
+        # get all products
+        products = Product.all()
+        index = random.randint(0, 9)  # picking a random product to reference
+        category = products[index].category
+
+        # count how many products have matching availability
+        count = len([product for product in products if product.category == category])
+
+        # filter and assert
+        found_products = Product.find_by_category(category)
+        self.assertEqual(found_products.count(), count)
+        for prod in found_products:
+            self.assertEqual(prod.category, category)
+
+    def test_get_by_price(self):
+        """it should filter products by price"""
+        # create 10 products
+        for _ in range(10):
+            new_product = ProductFactory()
+            new_product.id = None
+            new_product.create()
+
+        # get all products
+        products = Product.all()
+        index = random.randint(0, 9)  # picking a random product to reference
+        price = products[index].price
+
+        # count how many products have matching availability
+        count = len([product for product in products if product.price == price])
+
+        # filter and assert
+        found_products = Product.find_by_price(str(price))  # casting to string for additional code coverage
+        self.assertEqual(found_products.count(), count)
+        for prod in found_products:
+            self.assertEqual(prod.price, price)
