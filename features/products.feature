@@ -38,3 +38,99 @@ Scenario: Create a Product
     And I should see "True" in the "Available" dropdown
     And I should see "Tools" in the "Category" dropdown
     And I should see "34.95" in the "Price" field
+
+Scenario: Read a Product  
+    When I visit the "Home Page"
+    And I set the "Name" to "Sheets"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Sheets" in the "Name" field
+    And I should see "Full bed sheets" in the "Description" field
+    And I should see "87.00" in the "Price" field
+    And I should see "True" in the "Available" field
+    And I should see "HOUSEWARES" in the "Category" field
+
+Scenario: Update a Product
+    When I visit the "Home Page"
+    And I set the "Name" to "Sheets"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Full bed sheets" in the "Description" field
+    And I should see "87.00" in the "Price" field
+    When I set the "Description" to "A changed description"
+    And I set the "Price" to "100.00"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "Sheets" in the "Name" field
+    And I should see "A changed description" in the "Description" field
+    And I should see "100.00" in the "Price" field
+    And I should see "True" in the "Available" field
+    And I should see "HOUSEWARES" in the "Category" field
+
+Scenario: Delete a Product
+    When I visit the "Home Page"
+    And I set the "Name" to "Sheets"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Full bed sheets" in the "Description" field
+    When I copy the "Id" field
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Delete" button
+    Then I should see the message "Product has been Deleted"
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should not see "Sheets" in the results
+
+Scenario: List all products
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I press the "Search" button
+    Then I should see the message "Success" 
+    And I should see "Hat" in the results
+    And I should see "Shoes" in the results
+    And I should see "Big Mac" in the results
+    And I should see "Sheets" in the results
+
+Scenario: Search by Category
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I select "CLOTHS" in the "Category" dropdown
+    And I press the "Search" button
+    Then I should see the message "Success" 
+    And I should see "Hat" in the results
+    And I should see "Shoes" in the results
+    And I should not see "Big Mac" in the results
+    And I should not see "Sheets" in the results
+
+Scenario: Search by Availability
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I select "True" in the "Available" dropdown
+    And I press the "Search" button
+    Then I should see the message "Success" 
+    And I should see "Hat" in the results
+    And I should see "Big Mac" in the results
+    And I should see "Sheets" in the results
+    And I should not see "Shoes" in the results
+
+Scenario: Search by Name
+    When I visit the "Home Page"
+    And I press the "Clear" button
+    And I set the "Name" to "Big Mac"
+    And I press the "Search" button
+    Then I should see the message "Success" 
+    And I should see "Big Mac" in the results
+    And I should not see "Hat" in the results
+    And I should not see "Sheets" in the results
+    And I should not see "Shoes" in the results
