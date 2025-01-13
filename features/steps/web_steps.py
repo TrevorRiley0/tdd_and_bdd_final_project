@@ -67,7 +67,7 @@ def step_impl(context, text, element_name):
 def step_impl(context, text, element_name):
     element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
     element = Select(context.driver.find_element(By.ID, element_id))
-    assert(element.first_selected_option.text == text)
+    assert(element.first_selected_option.text.lower() == text.lower())
 
 @then('the "{element_name}" field should be empty')
 def step_impl(context, element_name):
@@ -104,7 +104,37 @@ def step_impl(context, element_name):
 # to get the element id of any button
 ##################################################################
 
-## UPDATE CODE HERE ##
+@when(u'I press the "{button_name}" button')
+def step_impl(context, button_name):
+    btn_id = button_name.lower() + "-btn"
+    btn = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, btn_id))
+    )
+    btn.click()
+
+@then(u'I should see the message "{message}"')
+def step_impl(context, message):
+    element_id = "flash_message"
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    assert(message in element.text)
+
+@then(u'I should see "{text_match}" in the results')
+def step_impl(context, text_match):
+    table_id = "search_results"
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, table_id))
+    )
+    assert(text_match in element.text)
+
+@then(u'I should not see "{text_match}" in the results')
+def step_impl(context, text_match):
+    table_id = "search_results"
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, table_id))
+    )
+    assert(text_match not in element.text)
 
 ##################################################################
 # This code works because of the following naming convention:

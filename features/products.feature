@@ -52,8 +52,8 @@ Scenario: Read a Product
     And I should see "Sheets" in the "Name" field
     And I should see "Full bed sheets" in the "Description" field
     And I should see "87.00" in the "Price" field
-    And I should see "True" in the "Available" field
-    And I should see "HOUSEWARES" in the "Category" field
+    And I should see "True" in the "Available" dropdown
+    And I should see "HOUSEWARES" in the "Category" dropdown
 
 Scenario: Update a Product
     When I visit the "Home Page"
@@ -66,6 +66,7 @@ Scenario: Update a Product
     And I set the "Price" to "100.00"
     And I press the "Update" button
     Then I should see the message "Success"
+    When I copy the "Id" field
     And I press the "Clear" button
     And I paste the "Id" field
     And I press the "Retrieve" button
@@ -73,8 +74,8 @@ Scenario: Update a Product
     And I should see "Sheets" in the "Name" field
     And I should see "A changed description" in the "Description" field
     And I should see "100.00" in the "Price" field
-    And I should see "True" in the "Available" field
-    And I should see "HOUSEWARES" in the "Category" field
+    And I should see "True" in the "Available" dropdown
+    And I should see "HOUSEWARES" in the "Category" dropdown
 
 Scenario: Delete a Product
     When I visit the "Home Page"
@@ -105,7 +106,7 @@ Scenario: List all products
 Scenario: Search by Category
     When I visit the "Home Page"
     And I press the "Clear" button
-    And I select "CLOTHS" in the "Category" dropdown
+    And I select "Cloths" in the "Category" dropdown
     And I press the "Search" button
     Then I should see the message "Success" 
     And I should see "Hat" in the results
